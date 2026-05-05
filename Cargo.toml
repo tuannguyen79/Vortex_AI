@@ -1,0 +1,132 @@
+[package]
+name = "vortexai-backend"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[[bin]]
+name = "vortexai"
+path = "src/main.rs"
+
+[lib]
+name = "vortexai_backend"
+path = "src/lib.rs"
+
+[dependencies]
+# ── Async Runtime ──────────────────────────────────────────────────────────────
+tokio          = { version = "1.40", features = ["full", "tracing"] }
+tokio-stream   = { version = "0.1", features = ["sync"] }
+
+# ── Web Framework ──────────────────────────────────────────────────────────────
+axum           = { version = "0.7", features = ["ws", "multipart", "macros"] }
+axum-extra     = { version = "0.9", features = ["typed-header"] }
+tower          = { version = "0.5", features = ["full"] }
+tower-http     = { version = "0.6", features = ["cors", "compression-gzip", "trace", "limit"] }
+tower_governor = "0.4"
+hyper          = { version = "1.4", features = ["full"] }
+
+# ── Serialization ──────────────────────────────────────────────────────────────
+serde          = { version = "1.0", features = ["derive"] }
+serde_json     = "1.0"
+serde_yaml     = "0.9"
+
+# ── Database ───────────────────────────────────────────────────────────────────
+sqlx           = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "time", "json", "migrate"] }
+
+# ── Redis ──────────────────────────────────────────────────────────────────────
+redis          = { version = "0.27", features = ["tokio-comp", "streams", "cluster-async", "connection-manager"] }
+deadpool-redis = { version = "0.18", features = ["rt_tokio_1"] }
+
+# ── HTTP Client ────────────────────────────────────────────────────────────────
+reqwest        = { version = "0.12", features = ["json", "stream", "rustls-tls", "gzip"] }
+reqwest-retry  = "0.7"
+reqwest-middleware = "0.3"
+
+# ── WebSocket Client ───────────────────────────────────────────────────────────
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-native-roots"] }
+futures-util   = "0.3"
+
+# ── Data / Analytics ──────────────────────────────────────────────────────────
+polars         = { version = "0.43", features = ["lazy", "rolling_window", "temporal", "parquet", "csv", "json", "strings", "pivot"] }
+ndarray        = { version = "0.16", features = ["rayon"] }
+rayon          = "1.10"
+statrs         = "0.17"
+
+# ── Auth / Security ────────────────────────────────────────────────────────────
+jsonwebtoken   = "9.3"
+argon2         = "0.5"
+uuid           = { version = "1.10", features = ["v4", "serde"] }
+sha2           = "0.10"
+hmac           = "0.12"
+ring           = "0.17"
+
+# ── Config / Env ───────────────────────────────────────────────────────────────
+config         = "0.14"
+dotenvy        = "0.15"
+
+# ── Observability ──────────────────────────────────────────────────────────────
+tracing        = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+opentelemetry  = { version = "0.26", features = ["metrics"] }
+opentelemetry-otlp = { version = "0.26", features = ["grpc-tonic"] }
+metrics        = "0.23"
+metrics-exporter-prometheus = "0.15"
+
+# ── AI / ML ────────────────────────────────────────────────────────────────────
+candle-core    = { version = "0.7", features = [] }
+candle-nn      = { version = "0.7" }
+candle-transformers = { version = "0.7" }
+tokenizers     = { version = "0.20", features = ["http"] }
+
+# ── Notifications ──────────────────────────────────────────────────────────────
+lettre         = { version = "0.11", features = ["tokio1", "tokio1-rustls-tls", "smtp-transport", "builder"] }
+teloxide       = { version = "0.13", features = ["macros", "throttle"] }
+
+# ── Time ───────────────────────────────────────────────────────────────────────
+time           = { version = "0.3", features = ["serde", "formatting", "parsing", "local-offset"] }
+chrono         = { version = "0.4", features = ["serde"] }
+chrono-tz      = "0.9"
+
+# ── Utilities ──────────────────────────────────────────────────────────────────
+anyhow         = "1.0"
+thiserror      = "1.0"
+dashmap        = "6.1"
+parking_lot    = "0.12"
+bytes          = "1.7"
+url            = "2.5"
+regex          = "1.11"
+once_cell      = "1.20"
+ordered-float  = { version = "4.3", features = ["serde"] }
+rust_decimal   = { version = "1.36", features = ["serde-with-str"] }
+crossbeam      = "0.8"
+flume          = "0.11"
+moka           = { version = "0.12", features = ["future"] }
+backoff        = { version = "0.4", features = ["tokio"] }
+async-trait    = "0.1"
+strum          = { version = "0.26", features = ["derive"] }
+itertools      = "0.13"
+rand           = "0.8"
+base64         = "0.22"
+hex            = "0.4"
+
+# ── Serialization: MessagePack (thay thế JSON cho internal IPC) ───────────────
+rmp-serde      = "1.3"          # serialize/deserialize MessagePack
+rmpv           = "1.3"          # MessagePack value type
+
+# ── Profiling (on-demand flamegraph, chỉ bật khi cần) ─────────────────────────
+pprof          = { version = "0.13", features = ["flamegraph", "protobuf-codec"], optional = true }
+
+[features]
+default  = []
+profiling = ["pprof"]   # cargo build --release --features profiling
+
+[profile.release]
+opt-level     = 3
+lto           = "fat"
+codegen-units = 1
+panic         = "abort"
+strip         = "symbols"
+
+[profile.dev]
+opt-level     = 1
+debug         = true

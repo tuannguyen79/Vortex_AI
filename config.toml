@@ -1,0 +1,21 @@
+# .cargo/config.toml
+# ════════════════════════════════════════════════════════════════════════════
+# Native-CPU optimisation: compile-time target detection.
+# Kết quả: binary KHÔNG portable sang máy khác, nhưng nhanh hơn 10-30% trên
+# máy chủ sản xuất (AVX2, SIMD FMA cho indicator math).
+[build]
+rustflags = ["-C", "target-cpu=native"]
+
+# LLD linker: giảm link time ~40% (chỉ áp dụng khi build release / non-debug)
+[target.'cfg(not(debug_assertions))']
+rustflags = [
+    "-C", "target-cpu=native",
+    "-C", "link-arg=-fuse-ld=lld",   # yêu cầu: apt install lld
+]
+
+# Trên macOS dùng zld hoặc bỏ dòng trên
+# [target.x86_64-apple-darwin]
+# rustflags = ["-C", "target-cpu=native"]
+
+[env]
+RUST_BACKTRACE = { value = "1", force = false }
